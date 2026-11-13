@@ -7,7 +7,7 @@ import { drawCharacter } from './render/character.js';
 import { createInput } from './input/touch.js';
 import { makeCode, hostRoom, joinRoom, snapshot, fromSnapshots } from './net/net.js';
 import { initAudio, sfx, startMusic, isMuted, setMuted } from './audio.js';
-import { meta, HAT_LIST, hatState, selectHat, reward, xpNeed } from './meta.js';
+import { meta, HAT_LIST, hatState, selectHat, reward, xpNeed, selectHero } from './meta.js';
 
 const $ = id => document.getElementById(id);
 const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
@@ -54,17 +54,41 @@ let ticker = null, lastTick = 0, tickN = 0, sendTimer = null, wakeLock = null;
 let snapPrev = null, snapCur = null, snapAt = 0, viewWorld = null, resultsShown = false;
 const remote = new Map();
 const sample = createInput();
+const HERO_KEYS = Object.keys(CFG.heroes);
+
+// мышь на ПК: ЛКМ — стрелять в курсор (зажать — автоогонь), ПКМ — навык в курсор
+const mouse = { down: null, x: 0, y: 0 };
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || !mode) return; mouse.down = e.button === 2 ? 'b' : 'a'; mouse.x = e.clientX; mouse.y = e.clientY; mouse.fresh = true; });
+addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { mouse.x = e.clientX; mouse.y = e.clientY; } });
+addEventListener('pointerup', e => { if (e.pointerType === 'mouse') mouse.down = null; });
+function mouseVec(w, btn) {
+  const me = w && w.players.find(p => p.id === myId); if (!me) return null;
+  const dpr = Math.min(devicePixelRatio || 1, 2), mx = (mouse.x * dpr - view.ox) / view.s, my = (mouse.y * dpr - view.oy) / view.s;
+  const dx = mx - me.x, dy = my - (me.y - 13 * (me.scale || 1)), d = Math.hypot(dx, dy) || 1;
+  const ch = w.match.chosenId === myId, P = ch && CFG.powers[me.power], Wp = me.weapon && CFG.weapons[me.weapon];
+  const range = btn === 'a' ? (ch ? P.aRange || 150 : Wp ? Wp.range : 40) : (ch ? P.bRange || 150 : 60);
+  const k = Math.max(0.15, Math.min(1, d / range)) / d;
+  return [dx * k || 1e-3, dy * k];
+}
+function myInput() {
+  const w = world || viewWorld;
+  if (mouse.down && w && (mouse.down === 'a' || mouse.fresh)) { const v = mouseVec(w, mouse.down); if (v) sample.fire(mouse.down, v[0], v[1]); }
+  mouse.fresh = false;
+  return sample();
+}
+
 
 // демо-битва ботов на фоне меню
 let demo = null, demoAcc = 0, demoLast = performance.now();
 function newDemo() {
   demo = createWorld();
-  ['Рыжий', 'Синий', 'Зелёный', 'Жёлтый'].forEach((n, i) => addPlayer(demo, { id: 'd' + i, name: n, color: CFG.colors[i], label: 'БОТ', isBot: true, hat: ['cap', 'wizard', 'horns', 'cowboy'][i] }));
+  ['Рыжий', 'Синий', 'Зелёный', 'Жёлтый'].forEach((n, i) => addPlayer(demo, { id: 'd' + i, name: n, color: CFG.colors[i], label: 'БОТ', isBot: true, hero: HERO_KEYS[(i * 3 + 1) % 8] }));
   startMatch(demo);
 }
 newDemo();
 
-const screens = ['scr-login', 'scr-menu', 'scr-lobby', 'scr-results', 'scr-wardrobe', 'scr-help'];
+const screens = ['scr-login', 'scr-menu', 'scr-lobby', 'scr-results', 'scr-wardrobe', 'scr-help', 'scr-heroes'];
 function show(id) {
   for (const s of screens) $(s).classList.toggle('hidden', s !== id);
   const ingame = !!(mode && (id === null || id === 'scr-lobby'));
@@ -77,6 +101,7 @@ function refreshProfile() {
   const M = meta();
   $('pf-nick').textContent = nick; $('pf-lvl').textContent = M.level; $('pf-coins').textContent = M.coins;
   $('pf-xp').style.width = Math.round(M.xp / xpNeed(M.level) * 100) + '%';
+  $('pf-hero').textContent = (CFG.heroes[M.hero] || CFG.heroes.brawler).name.toUpperCase();
 }
 
 // ---------- вход ----------
@@ -94,7 +119,7 @@ $('in-pass').addEventListener('keydown', e => { if (e.key === 'Enter') $('go-log
 function hatPreview(id, color) {
   const c = document.createElement('canvas'); c.width = 24; c.height = 30;
   const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
-  drawCharacter(g, null, { color, hat: id, scale: 1, facing: 1, onGround: true, vx: 0, vy: 0, animT: 0, seed: 1 }, 12, 28, 0.5, {});
+  drawCharacter(g, null, { color, hat: id, hero: meta().hero, scale: 1, facing: 1, onGround: true, vx: 0, vy: 0, animT: 0, seed: 1 }, 12, 28, 0.5, {});
   return c;
 }
 function renderWardrobe(msg = '') {
@@ -115,6 +140,37 @@ function renderWardrobe(msg = '') {
 $('go-wardrobe').onclick = () => { renderWardrobe(); show('scr-wardrobe'); };
 $('wd-back').onclick = () => show('scr-menu');
 $('go-help').onclick = () => show('scr-help');
+// выбор героя: живые превью
+let heroAnim = null;
+function renderHeroes() {
+  const grid = $('hero-grid'); grid.innerHTML = '';
+  const cvs = [];
+  for (const k of HERO_KEYS) {
+    const h = CFG.heroes[k], b = document.createElement('button');
+    b.className = 'hero' + (meta().hero === k ? ' sel' : '');
+    const c = document.createElement('canvas'); c.width = 30; c.height = 36; cvs.push([c, k]);
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = `${h.icon} ${h.name}`;
+    const ds = document.createElement('div'); ds.className = 'ds'; ds.textContent = h.desc;
+    const stt = document.createElement('div'); stt.className = 'stt'; stt.textContent = `❤${h.hp}  »${h.speed}${h.airJumps > 1 ? '  ⤒×3' : ''}`;
+    b.append(c, nm, ds, stt);
+    b.onclick = () => { selectHero(k); renderHeroes(); sfx('pickup'); };
+    grid.append(b);
+  }
+  cancelAnimationFrame(heroAnim);
+  const loop = t => {
+    for (const [c, k] of cvs) {
+      const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.clearRect(0, 0, 30, 36);
+      const sel = meta().hero === k, run = sel && Math.floor(t / 2000) % 2 === 0;
+      drawCharacter(g, null, { color: CFG.colors[0], hero: k, hat: 'none', scale: 1, facing: 1, onGround: true, vx: run ? 50 : 0, vy: 0, animT: t / 1000, seed: k.length, weapon: sel ? 'pistol' : null, aimX: 1, aimY: 0, attackT: 0 }, 15, 32, t / 1000, {});
+    }
+    if (!$('scr-heroes').classList.contains('hidden')) heroAnim = requestAnimationFrame(loop);
+  };
+  heroAnim = requestAnimationFrame(loop);
+}
+$('go-heroes').onclick = () => { show('scr-heroes'); renderHeroes(); };
+$('heroes-back').onclick = () => show('scr-menu');
+try { const cm = localStorage.getItem('izb-cam'); if (cm) $('cam-mode').value = cm; } catch {}
+$('cam-mode').onchange = () => { try { localStorage.setItem('izb-cam', $('cam-mode').value); } catch {} };
 $('help-back').onclick = () => show('scr-menu');
 
 // ---------- общие ----------
@@ -124,7 +180,8 @@ const BOT_HATS = ['cap', 'band', 'horns', 'wizard', 'cowboy', 'cat', 'top', 'che
 function addBot() {
   if (world.players.length >= CFG.maxPlayers) return;
   let i = 1; while (world.players.some(p => p.id === 'bot' + i)) i++;
-  addPlayer(world, { id: 'bot' + i, name: BOT_NAMES[(i - 1) % 8], color: freeColor(), label: 'БОТ', isBot: true, hat: BOT_HATS[(i - 1) % 8] });
+  const used = world.players.map(p => p.hero), free = HERO_KEYS.filter(h => !used.includes(h));
+  addPlayer(world, { id: 'bot' + i, name: BOT_NAMES[(i - 1) % 8], color: freeColor(), label: 'БОТ', isBot: true, hero: (free.length ? free : HERO_KEYS)[Math.floor(Math.random() * (free.length || 8))] });
 }
 function startTicker() {
   stopTicker(); lastTick = performance.now();
@@ -136,9 +193,9 @@ function stopTicker() { clearInterval(ticker); ticker = null; clearInterval(send
 function tick() {
   const inputs = {};
   for (const p of world.players) {
-    if (p.id === myId) inputs[p.id] = sample();
+    if (p.id === myId) inputs[p.id] = myInput();
     else if (p.isBot) inputs[p.id] = botInput(world, p, botLvl);
-    else { const r = remote.get(p.id); if (r) { inputs[p.id] = { ...r }; r.jump = r.a = r.b = r.c = false; } }
+    else { const r = remote.get(p.id); if (r) { inputs[p.id] = { ...r }; r.jump = r.a = r.b = r.c = false; r.ax = r.ay = r.bx = r.by = 0; } }
   }
   step(world, inputs, 1 / CFG.TICK);
   lastTick = performance.now();
@@ -164,7 +221,7 @@ $('go-bots').onclick = () => {
   mode = 'bots'; myId = 'me'; resetBots(); resetRender(); document.body.classList.add('is-host');
   botLvl = +$('bots-lvl').value;
   world = createWorld();
-  addPlayer(world, { id: 'me', name: nick, color: CFG.colors[0], label: LABEL, hat: meta().hat });
+  addPlayer(world, { id: 'me', name: nick, color: CFG.colors[0], label: LABEL, hat: meta().hat, hero: meta().hero });
   for (let i = 0; i < +$('bots-n').value; i++) addBot();
   startMatch(world); resultsShown = false; startTicker(); show(null);
 };
@@ -193,7 +250,7 @@ $('go-host').onclick = () => {
   botLvl = +$('bots-lvl').value;
   code = makeCode();
   world = createWorld();
-  addPlayer(world, { id: 'host', name: nick, color: CFG.colors[0], label: LABEL, hat: meta().hat });
+  addPlayer(world, { id: 'host', name: nick, color: CFG.colors[0], label: LABEL, hat: meta().hat, hero: meta().hero });
   $('menu-err').textContent = 'Создаём комнату…';
   net = hostRoom(code, {
     onOpen() { $('menu-err').textContent = ''; startTicker(); lobbyChanged(); show('scr-lobby'); },
@@ -201,7 +258,7 @@ $('go-host').onclick = () => {
     onJoin(id, msg) {
       if (world.match.phase !== 'lobby') return 'Матч уже идёт';
       if (world.players.length >= CFG.maxPlayers) return 'Комната заполнена';
-      addPlayer(world, { id, name: String(msg.name || 'Игрок').slice(0, 12), color: freeColor(), label: String(msg.label || '?').slice(0, 10), hat: String(msg.hat || 'none').slice(0, 12) });
+      addPlayer(world, { id, name: String(msg.name || 'Игрок').slice(0, 12), color: freeColor(), label: String(msg.label || '?').slice(0, 10), hat: String(msg.hat || 'none').slice(0, 12), hero: String(msg.hero || 'brawler') });
       return true;
     },
     onJoined() { lobbyChanged(); },
@@ -209,7 +266,8 @@ $('go-host').onclick = () => {
       if (msg.t !== 'in') return;
       const r = remote.get(id) || {};
       remote.set(id, { mx: +msg.mx || 0, my: +msg.my || 0, jumpHeld: !!msg.jumpHeld,
-        jump: r.jump || !!msg.jump, a: r.a || !!msg.a, b: r.b || !!msg.b, c: r.c || !!msg.c });
+        jump: r.jump || !!msg.jump, a: r.a || !!msg.a, b: r.b || !!msg.b, c: r.c || !!msg.c,
+        ax: msg.a ? +msg.ax || 0 : r.ax || 0, ay: msg.a ? +msg.ay || 0 : r.ay || 0, bx: msg.b ? +msg.bx || 0 : r.bx || 0, by: msg.b ? +msg.by || 0 : r.by || 0 });
     },
     onLeave(id) { removePlayer(world, id); remote.delete(id); if (world.match.phase === 'lobby') lobbyChanged(); },
   });
@@ -230,11 +288,11 @@ $('go-join').onclick = () => {
   if (c.length !== 5) return void ($('menu-err').textContent = 'Код — 5 символов');
   mode = 'client'; code = c; resetRender(); document.body.classList.remove('is-host');
   $('menu-err').textContent = 'Подключаемся…';
-  net = joinRoom(c, { name: nick, label: LABEL, pass: PASSWORD, hat: meta().hat }, {
+  net = joinRoom(c, { name: nick, label: LABEL, pass: PASSWORD, hat: meta().hat, hero: meta().hero }, {
     onMsg(msg) {
       if (msg.t === 'welcome') {
         myId = msg.id; $('menu-err').textContent = '';
-        sendTimer = setInterval(() => net && net.send({ t: 'in', ...sample() }), 1000 / CFG.TICK);
+        sendTimer = setInterval(() => net && net.send({ t: 'in', ...myInput() }), 1000 / CFG.TICK);
       } else if (msg.t === 'lobby') { renderLobby(msg); if (!snapCur || snapCur.m.phase === 'lobby') show('scr-lobby'); }
       else if (msg.t === 'start') { resultsShown = false; show(null); }
       else if (msg.t === 's') { snapPrev = snapCur; snapCur = msg.s; snapAt = performance.now(); viewWorld = fromSnapshots(snapPrev, snapCur); }
@@ -282,14 +340,17 @@ function frame(now) {
     }
     w = demo; alpha = demoAcc / dt;
   } else demoLast = now;
-  render(ctx, view, w, alpha, mode ? myId : null);
+  render(ctx, view, w, alpha, mode ? myId : null, { aim: sample.aim, camMode: $('cam-mode').value });
   if (mode && w !== demo) {
     const me = w.players.find(p => p.id === myId);
     if (me) {
       const ch = w.match.chosenId === myId;
-      const bb = $('btn-b'), lbl = ch ? '★' : '⇢'; if (bb.textContent !== lbl) bb.textContent = lbl;
-      const pw = ch && CFG.powers[me.power];
-      const bMax = ch ? pw.bCd : CFG.dashCd, aMax = ch ? pw.aCd : CFG.hunter.shotCd;
+      const pw = ch && CFG.powers[me.power], hero = CFG.heroes[me.hero] || CFG.heroes.brawler;
+      const bb = $('btn-b'), lbl = ch ? '★' : hero.icon; if (bb.textContent !== lbl) bb.textContent = lbl;
+      const ab = $('btn-a'), Wp = me.weapon && CFG.weapons[me.weapon];
+      const albl = ch ? pw.icon : Wp ? Wp.icon : '✊', ammo = !ch && Wp ? String(me.ammo) : '';
+      if (ab.dataset.l !== albl + ammo) { ab.dataset.l = albl + ammo; ab.textContent = albl; if (ammo) { const sp = document.createElement('span'); sp.className = 'ammo'; sp.textContent = ammo; ab.append(sp); } }
+      const bMax = ch ? pw.bCd : hero.cd, aMax = ch ? pw.aCd : Wp ? Wp.cd : CFG.punch.cd;
       bb.style.setProperty('--p', (1 - Math.min(1, (me.cdB || 0) / bMax)).toFixed(2));
       $('btn-a').style.setProperty('--p', (1 - Math.min(1, (me.cdA || 0) / aMax)).toFixed(2));
       bb.classList.toggle('cd', me.cdB > 0); $('btn-a').classList.toggle('cd', me.cdA > 0.05);

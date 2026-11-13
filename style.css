@@ -71,3 +71,12 @@ body.is-host .client-only{display:none}
 #rotate{display:none;position:fixed;inset:0;background:var(--ink);color:#fff;font-size:12px;line-height:2;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:9}
 @media (orientation:portrait) and (pointer:coarse){#rotate{display:flex}}
 @media (max-height:420px){.panel{padding:10px 14px}.logo{font-size:18px}.btn-y,.btn-g{padding:9px 12px;font-size:10px}}
+#hero-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin:6px 0 10px}
+.hero{background:var(--ink);border:3px solid #3d3160;border-radius:4px;padding:6px 5px;font-size:7px;line-height:1.6;color:#fff;text-align:center}
+.hero canvas{display:block;margin:0 auto 4px;image-rendering:pixelated;width:60px;height:72px}
+.hero .nm{font-size:9px;color:var(--y);margin-bottom:3px}
+.hero .ds{color:var(--mute);min-height:3.2em}
+.hero .stt{color:#7dff8a}
+.hero.sel{border-color:var(--y);box-shadow:0 0 14px rgba(255,210,63,.55)}
+.btn .ammo{position:absolute;bottom:-4px;right:-4px;background:var(--ink);color:var(--y);font:9px "Press Start 2P",monospace;padding:3px 4px;border-radius:4px;border:2px solid var(--y)}
+#cam-mode{font-size:10px}

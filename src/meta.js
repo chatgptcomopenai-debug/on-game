@@ -14,7 +14,7 @@ export const HAT_LIST = [
   { id: 'pirate', name: 'Пират', lvl: 5, cost: 200 },
   { id: 'halo', name: 'Нимб', lvl: 8, cost: 0 },
 ];
-const DEF = { xp: 0, level: 1, coins: 0, owned: ['none', 'cap'], hat: 'cap', games: 0, wins: 0 };
+const DEF = { xp: 0, level: 1, coins: 0, owned: ['none', 'cap'], hat: 'none', hero: 'brawler', games: 0, wins: 0 };
 let M = { ...DEF };
 try { M = { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(M)); } catch {} };
@@ -44,3 +44,4 @@ export function reward(score, place, n) {
   save();
   return { coins, xp, levelUp: M.level > before, level: M.level, unlocked };
 }
+export function selectHero(id) { M.hero = id; save(); }
