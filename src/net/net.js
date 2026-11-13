@@ -52,18 +52,18 @@ export function joinRoom(code, hello, h) {
 // компактный снапшот мира
 const r1 = v => Math.round(v * 10) / 10;
 export function snapshot(w) {
-  return { t: r1(w.time), m: w.match,
-    p: w.players.map(p => ({ id: p.id, name: p.name, color: p.color, label: p.label, isBot: p.isBot,
+  return { t: r1(w.time), mi: w.mapIdx, fid: w.fxId, m: w.match, hz: w.hazard, pk: w.pickups,
+    p: w.players.map(p => ({ id: p.id, name: p.name, color: p.color, label: p.label, isBot: p.isBot, hat: p.hat, seed: p.seed,
       x: r1(p.x), y: r1(p.y), vx: Math.round(p.vx), vy: Math.round(p.vy), facing: p.facing, onGround: p.onGround,
-      hp: Math.round(p.hp), maxHp: p.maxHp, dead: r1(p.dead), inv: r1(p.inv), attackT: r1(p.attackT), power: p.power,
-      scale: p.scale, score: Math.floor(p.score), slam: p.slam, animT: r1(p.animT), cdA: r1(p.cdA), cdB: r1(p.cdB),
-      slowT: r1(p.slowT), stats: p.stats })),
-    pr: w.projs.map(q => ({ x: r1(q.x), y: r1(q.y), vx: q.vx, vy: q.vy, kind: q.kind, c: q.c })),
+      hp: Math.round(p.hp), maxHp: p.maxHp, dead: r1(p.dead), inv: r1(p.inv), attackT: r1(p.attackT), hitT: r1(p.hitT),
+      dashT: r1(p.dashT), frozenT: r1(p.frozenT), power: p.power, scale: p.scale, score: Math.floor(p.score), slam: p.slam,
+      animT: r1(p.animT), cdA: r1(p.cdA), cdB: r1(p.cdB), slowT: r1(p.slowT), ult: Math.floor(p.ult), buffs: p.buffs, stats: p.stats })),
+    pr: w.projs.map(q => ({ x: r1(q.x), y: r1(q.y), vx: Math.round(q.vx), vy: Math.round(q.vy), kind: q.kind, c: q.c })),
     te: w.teles, wa: w.walls, fx: w.fx };
 }
 
 export function fromSnapshots(prev, cur) {
   const pm = new Map((prev ? prev.p : []).map(p => [p.id, p]));
-  return { time: cur.t, match: cur.m, projs: cur.pr, teles: cur.te, walls: cur.wa, fx: cur.fx,
+  return { time: cur.t, mapIdx: cur.mi, fxId: cur.fid, match: cur.m, hazard: cur.hz, pickups: cur.pk, projs: cur.pr, teles: cur.te, walls: cur.wa, fx: cur.fx,
     players: cur.p.map(p => { const o = pm.get(p.id); return { ...p, px: o && o.dead <= 0 ? o.x : p.x, py: o && o.dead <= 0 ? o.y : p.y }; }) };
 }

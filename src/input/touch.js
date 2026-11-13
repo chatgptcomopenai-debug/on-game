@@ -1,6 +1,6 @@
 // Управление: плавающий джойстик слева, кнопки справа; клавиатура для ПК
 export function createInput() {
-  const st = { mx: 0, my: 0, jumpHeld: false, jumpPressed: false, bP: false, aP: false };
+  const st = { mx: 0, my: 0, jumpHeld: false, jumpPressed: false, bP: false, aP: false, cP: false };
   const base = document.getElementById('joy-base'), knob = document.getElementById('joy-knob');
   const zone = document.getElementById('joy-zone');
   let jid = null, cx = 0, cy = 0; const R = 45;
@@ -27,6 +27,7 @@ export function createInput() {
   bind('btn-jump', () => { st.jumpHeld = true; st.jumpPressed = true; }, () => { st.jumpHeld = false; });
   bind('btn-a', () => { st.aP = true; });
   bind('btn-b', () => { st.bP = true; });
+  bind('btn-c', () => { st.cP = true; });
 
   const keys = new Set();
   addEventListener('keydown', e => {
@@ -34,6 +35,7 @@ export function createInput() {
     if (e.repeat) return; keys.add(e.code);
     if (['Space', 'KeyW', 'ArrowUp'].includes(e.code)) { st.jumpHeld = true; st.jumpPressed = true; }
     if (e.code === 'KeyJ') st.aP = true;
+    if (e.code === 'KeyL' || e.code === 'KeyI') st.cP = true;
     if (e.code === 'KeyK' || e.code === 'ShiftLeft') st.bP = true;
   });
   addEventListener('keyup', e => {
@@ -48,8 +50,8 @@ export function createInput() {
       mx = (keys.has('KeyD') || keys.has('ArrowRight')) - (keys.has('KeyA') || keys.has('ArrowLeft')) || mx;
       my = (keys.has('KeyS') || keys.has('ArrowDown')) ? 1 : my;
     }
-    const out = { mx, my, jumpHeld: st.jumpHeld, jump: st.jumpPressed, b: st.bP, a: st.aP };
-    st.jumpPressed = st.bP = st.aP = false;
+    const out = { mx, my, jumpHeld: st.jumpHeld, jump: st.jumpPressed, b: st.bP, a: st.aP, c: st.cP };
+    st.jumpPressed = st.bP = st.aP = st.cP = false;
     return out;
   };
 }

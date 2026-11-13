@@ -3,9 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#1a1c2c">
+<meta name="theme-color" content="#0b0712">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Избранный</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="site.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -13,57 +16,102 @@
 </head>
 <body>
 <canvas id="game"></canvas>
+
 <div id="controls" class="hidden">
   <div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div>
   <div id="buttons">
-    <button id="btn-b" class="btn small">⇢</button>
-    <button id="btn-a" class="btn">✊</button>
+    <button id="btn-c" class="btn ult hidden" style="--p:0">💥</button>
+    <button id="btn-b" class="btn small" style="--p:1">⇢</button>
+    <button id="btn-a" class="btn" style="--p:1">✊</button>
     <button id="btn-jump" class="btn big">⤒</button>
   </div>
-  <button id="btn-exit" class="exit">✕</button>
+  <button id="btn-exit" class="corner">✕</button>
 </div>
+<button id="btn-mute" class="corner mute">🔊</button>
 
 <div id="scr-login" class="screen">
   <div class="panel">
-    <h1>👑 ИЗБРАННЫЙ</h1>
+    <div class="logo"><span class="crown">👑</span><span>ИЗБРАННЫЙ</span></div>
+    <p class="tag">Один получает силу. Все против него.</p>
     <input id="in-nick" maxlength="12" placeholder="Твой ник" autocomplete="off">
     <input id="in-pass" type="password" inputmode="numeric" placeholder="Пароль" autocomplete="off">
-    <button id="go-login" class="big-btn">Войти</button>
+    <button id="go-login" class="btn-y">ВОЙТИ</button>
     <p id="login-err" class="err"></p>
   </div>
 </div>
 
 <div id="scr-menu" class="screen hidden">
-  <div class="panel">
-    <h1>👑 ИЗБРАННЫЙ</h1>
-    <p class="hint">Привет, <b id="menu-nick"></b>!</p>
-    <div class="row"><button id="go-bots" class="big-btn">🤖 Играть с ботами</button>
-      <select id="bots-n"><option value="2">2 бота</option><option value="3" selected>3 бота</option><option value="4">4 бота</option><option value="5">5 ботов</option></select></div>
-    <button id="go-host" class="big-btn">🌐 Создать комнату</button>
-    <div class="row"><input id="in-code" maxlength="5" placeholder="КОД" autocomplete="off"><button id="go-join" class="big-btn">Войти</button></div>
+  <div class="panel wide">
+    <div class="logo small"><span class="crown">👑</span><span>ИЗБРАННЫЙ</span></div>
+    <div class="profile">
+      <span id="pf-nick"></span>
+      <span class="lvl">УР. <b id="pf-lvl">1</b></span>
+      <span class="xp"><i id="pf-xp"></i></span>
+      <span class="coins">💰 <b id="pf-coins">0</b></span>
+    </div>
+    <div class="row">
+      <button id="go-bots" class="btn-y">🤖 С БОТАМИ</button>
+      <select id="bots-n"><option value="2">2 бота</option><option value="3" selected>3 бота</option><option value="4">4 бота</option><option value="5">5 ботов</option></select>
+      <select id="bots-lvl"><option value="0">Лёгкие</option><option value="1" selected>Норм</option><option value="2">Жёсткие</option></select>
+    </div>
+    <div class="row">
+      <button id="go-host" class="btn-y">🌐 СОЗДАТЬ КОМНАТУ</button>
+    </div>
+    <div class="row">
+      <input id="in-code" maxlength="5" placeholder="КОД" autocomplete="off">
+      <button id="go-join" class="btn-y">ВОЙТИ</button>
+    </div>
+    <div class="row">
+      <button id="go-wardrobe" class="btn-g">🎩 ГАРДЕРОБ</button>
+      <button id="go-help" class="btn-g">❓ КАК ИГРАТЬ</button>
+    </div>
     <p id="menu-err" class="err"></p>
+  </div>
+</div>
+
+<div id="scr-wardrobe" class="screen hidden">
+  <div class="panel wide">
+    <h2>🎩 ГАРДЕРОБ <span class="coins">💰 <b id="wd-coins">0</b></span></h2>
+    <div id="wd-grid"></div>
+    <p id="wd-msg" class="hint"></p>
+    <button id="wd-back" class="btn-g">НАЗАД</button>
+  </div>
+</div>
+
+<div id="scr-help" class="screen hidden">
+  <div class="panel wide help">
+    <h2>❓ КАК ИГРАТЬ</h2>
+    <p>👑 <b>Избранный</b> получает случайную силу: 🔥 Пламя, ⚡ Молния, ❄ Лёд или 🗿 Гигант. Остальные — <b>охотники</b>, их цель — свалить его.</p>
+    <p>⚔ Кто добил Избранного — становится им сам. Упал в море — погиб.</p>
+    <p>🕹 Джойстик — бег (вниз в воздухе — быстрое падение). <b>⤒</b> прыжок (в воздухе — двойной). <b>✊</b> атака (автонаведение, каждый 3-й выстрел — заряженный). <b>⇢</b> рывок с неуязвимостью. У Избранного <b>★</b> — особая способность, <b>💥</b> — УЛЬТА.</p>
+    <p>🎁 Бонусы на карте: ❤ аптечка, ⁂ тройной выстрел, 🛡 щит, » скорость, ● бомбы. Избранный забирая бонус заряжает ульту.</p>
+    <p>⚠ На каждой карте свои события: ураган, гейзеры лавы, сосульки. 5 раундов — 3 острова.</p>
+    <p>💰 За матч — опыт и монеты. Покупай шапки в гардеробе!</p>
+    <p class="hint">ПК: A/D бег, S вниз, Пробел прыжок, J атака, K рывок/способность, L ульта.</p>
+    <button id="help-back" class="btn-g">ПОНЯТНО</button>
   </div>
 </div>
 
 <div id="scr-lobby" class="screen hidden">
   <div class="panel">
-    <h2>Комната <span id="lobby-code" class="code"></span></h2>
+    <h2>КОМНАТА <span id="lobby-code" class="code"></span></h2>
     <p class="hint" id="lobby-hint">Скажи код друзьям (и пароль)</p>
     <ul id="lobby-list"></ul>
-    <div class="row host-only"><button id="bot-add" class="mid-btn">+ бот</button><button id="bot-del" class="mid-btn">− бот</button></div>
-    <button id="go-start" class="big-btn host-only">▶ Начать</button>
-    <button id="lobby-leave" class="mid-btn">Выйти</button>
+    <div class="row host-only"><button id="bot-add" class="btn-g">+ БОТ</button><button id="bot-del" class="btn-g">− БОТ</button></div>
+    <button id="go-start" class="btn-y host-only">▶ НАЧАТЬ</button>
+    <button id="lobby-leave" class="btn-g">ВЫЙТИ</button>
   </div>
 </div>
 
 <div id="scr-results" class="screen hidden">
   <div class="panel">
-    <h2>🏆 Итоги матча</h2>
+    <h2>🏆 ИТОГИ</h2>
     <ol id="res-list"></ol>
     <p id="res-awards" class="hint"></p>
-    <button id="go-rematch" class="big-btn host-only">🔁 Реванш</button>
+    <p id="res-reward" class="reward"></p>
+    <button id="go-rematch" class="btn-y host-only">🔁 РЕВАНШ</button>
     <p class="hint client-only">Ждём, пока хост начнёт реванш…</p>
-    <button id="res-menu" class="mid-btn">В меню</button>
+    <button id="res-menu" class="btn-g">В МЕНЮ</button>
   </div>
 </div>
 
