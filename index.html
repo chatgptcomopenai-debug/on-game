@@ -4,18 +4,71 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#1a1c2c">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Избранный</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="site.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
 </head>
 <body>
 <canvas id="game"></canvas>
-<div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div>
-<div id="buttons">
-  <button id="btn-dash" class="btn small">⇢</button>
-  <button id="btn-attack" class="btn">✊</button>
-  <button id="btn-jump" class="btn big">⤒</button>
+<div id="controls" class="hidden">
+  <div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div>
+  <div id="buttons">
+    <button id="btn-b" class="btn small">⇢</button>
+    <button id="btn-a" class="btn">✊</button>
+    <button id="btn-jump" class="btn big">⤒</button>
+  </div>
+  <button id="btn-exit" class="exit">✕</button>
 </div>
+
+<div id="scr-login" class="screen">
+  <div class="panel">
+    <h1>👑 ИЗБРАННЫЙ</h1>
+    <input id="in-nick" maxlength="12" placeholder="Твой ник" autocomplete="off">
+    <input id="in-pass" type="password" inputmode="numeric" placeholder="Пароль" autocomplete="off">
+    <button id="go-login" class="big-btn">Войти</button>
+    <p id="login-err" class="err"></p>
+  </div>
+</div>
+
+<div id="scr-menu" class="screen hidden">
+  <div class="panel">
+    <h1>👑 ИЗБРАННЫЙ</h1>
+    <p class="hint">Привет, <b id="menu-nick"></b>!</p>
+    <div class="row"><button id="go-bots" class="big-btn">🤖 Играть с ботами</button>
+      <select id="bots-n"><option value="2">2 бота</option><option value="3" selected>3 бота</option><option value="4">4 бота</option><option value="5">5 ботов</option></select></div>
+    <button id="go-host" class="big-btn">🌐 Создать комнату</button>
+    <div class="row"><input id="in-code" maxlength="5" placeholder="КОД" autocomplete="off"><button id="go-join" class="big-btn">Войти</button></div>
+    <p id="menu-err" class="err"></p>
+  </div>
+</div>
+
+<div id="scr-lobby" class="screen hidden">
+  <div class="panel">
+    <h2>Комната <span id="lobby-code" class="code"></span></h2>
+    <p class="hint" id="lobby-hint">Скажи код друзьям (и пароль)</p>
+    <ul id="lobby-list"></ul>
+    <div class="row host-only"><button id="bot-add" class="mid-btn">+ бот</button><button id="bot-del" class="mid-btn">− бот</button></div>
+    <button id="go-start" class="big-btn host-only">▶ Начать</button>
+    <button id="lobby-leave" class="mid-btn">Выйти</button>
+  </div>
+</div>
+
+<div id="scr-results" class="screen hidden">
+  <div class="panel">
+    <h2>🏆 Итоги матча</h2>
+    <ol id="res-list"></ol>
+    <p id="res-awards" class="hint"></p>
+    <button id="go-rematch" class="big-btn host-only">🔁 Реванш</button>
+    <p class="hint client-only">Ждём, пока хост начнёт реванш…</p>
+    <button id="res-menu" class="mid-btn">В меню</button>
+  </div>
+</div>
+
 <div id="rotate">Поверни телефон горизонтально ↻</div>
+<script src="lib/peerjs.min.js"></script>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

@@ -1,14 +1,36 @@
-html,body{margin:0;height:100%;background:#1a1c2c;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+html,body{margin:0;height:100%;background:#1a1c2c;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;font-family:system-ui,sans-serif;color:#fff}
 #game{position:fixed;inset:0;width:100vw;height:100dvh;display:block;image-rendering:pixelated}
+.hidden{display:none!important}
 #joy-zone{position:fixed;left:0;top:0;width:50vw;height:100dvh}
 #joy-base{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);display:none}
 #joy-knob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(255,255,255,.45)}
-#buttons{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:18px;display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;gap:12px;align-items:end}
-.btn{width:68px;height:68px;border-radius:50%;border:3px solid #fff8;background:#0006;color:#fff;font:bold 26px system-ui;touch-action:none}
+#buttons{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:18px;display:grid;grid-template-columns:auto auto;gap:12px;align-items:end}
+.btn{width:68px;height:68px;border-radius:50%;border:3px solid #fff8;background:#0006;color:#fff;font:bold 26px system-ui;touch-action:none;padding:0}
 .btn.big{width:84px;height:84px;grid-column:2;grid-row:2}
-.btn.small{width:56px;height:56px;font-size:22px;grid-column:2;grid-row:1;justify-self:center}
-#btn-attack{grid-column:1;grid-row:2}
+.btn.small{width:58px;height:58px;font-size:24px;grid-column:2;grid-row:1;justify-self:center}
+#btn-a{grid-column:1;grid-row:2}
 .btn.on{background:#fff4}
-#rotate{display:none;position:fixed;inset:0;background:#1a1c2c;color:#fff;font:600 20px system-ui;align-items:center;justify-content:center;text-align:center;padding:24px}
-@media (orientation:portrait) and (pointer:coarse){#rotate{display:flex}}
+.btn.cd{opacity:.45}
+.exit{position:fixed;right:calc(10px + env(safe-area-inset-right));top:8px;width:34px;height:34px;border-radius:8px;border:2px solid #fff6;background:#0006;color:#fff;font-size:16px}
 @media (pointer:fine){#joy-zone,#buttons{display:none}}
+.screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(20,22,40,.72);padding:12px;box-sizing:border-box;touch-action:auto}
+.panel{background:#2b2f4f;border:3px solid #ffd23f;border-radius:14px;padding:14px 20px;min-width:260px;max-width:92vw;max-height:94dvh;overflow:auto;text-align:center;box-shadow:0 6px 0 #0008}
+h1{margin:4px 0 10px;font-size:26px;color:#ffd23f;letter-spacing:2px;text-shadow:3px 3px 0 #000}
+h2{margin:4px 0 8px;font-size:20px}
+input,select{font:600 17px system-ui;padding:9px 12px;border-radius:9px;border:2px solid #fff4;background:#1a1c2c;color:#fff;margin:4px;box-sizing:border-box}
+#in-nick,#in-pass{width:230px;display:block;margin:6px auto}
+#in-code{width:110px;text-transform:uppercase;letter-spacing:3px;text-align:center}
+.big-btn{font:bold 17px system-ui;padding:10px 18px;border-radius:10px;border:none;background:#ffd23f;color:#1a1c2c;margin:5px;box-shadow:0 4px 0 #a8861c}
+.big-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #a8861c}
+.mid-btn{font:600 15px system-ui;padding:8px 14px;border-radius:9px;border:2px solid #fff6;background:#0004;color:#fff;margin:5px}
+.row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+.err{color:#ff6b6b;min-height:1em;margin:6px 0 0;font-weight:600}
+.hint{color:#c9cbe0;margin:4px 0 8px;font-size:14px}
+.code{color:#ffd23f;letter-spacing:4px;font-size:26px}
+ul,ol{list-style:none;padding:0;margin:6px 0;text-align:left;min-width:220px}
+li{padding:5px 8px;margin:3px 0;border-radius:7px;background:#0003;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+li .dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+body:not(.is-host) .host-only{display:none}
+body.is-host .client-only{display:none}
+#rotate{display:none;position:fixed;inset:0;background:#1a1c2c;color:#fff;font:600 20px system-ui;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:9}
+@media (orientation:portrait) and (pointer:coarse){#rotate{display:flex}}

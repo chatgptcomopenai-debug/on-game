@@ -1,6 +1,6 @@
 // Управление: плавающий джойстик слева, кнопки справа; клавиатура для ПК
 export function createInput() {
-  const st = { mx: 0, my: 0, jumpHeld: false, jumpPressed: false, dashPressed: false, attackPressed: false };
+  const st = { mx: 0, my: 0, jumpHeld: false, jumpPressed: false, bP: false, aP: false };
   const base = document.getElementById('joy-base'), knob = document.getElementById('joy-knob');
   const zone = document.getElementById('joy-zone');
   let jid = null, cx = 0, cy = 0; const R = 45;
@@ -25,15 +25,16 @@ export function createInput() {
     b.addEventListener('pointerup', u); b.addEventListener('pointercancel', u); b.addEventListener('pointerleave', u);
   };
   bind('btn-jump', () => { st.jumpHeld = true; st.jumpPressed = true; }, () => { st.jumpHeld = false; });
-  bind('btn-attack', () => { st.attackPressed = true; });
-  bind('btn-dash', () => { st.dashPressed = true; });
+  bind('btn-a', () => { st.aP = true; });
+  bind('btn-b', () => { st.bP = true; });
 
   const keys = new Set();
   addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
     if (e.repeat) return; keys.add(e.code);
     if (['Space', 'KeyW', 'ArrowUp'].includes(e.code)) { st.jumpHeld = true; st.jumpPressed = true; }
-    if (e.code === 'KeyJ') st.attackPressed = true;
-    if (e.code === 'KeyK' || e.code === 'ShiftLeft') st.dashPressed = true;
+    if (e.code === 'KeyJ') st.aP = true;
+    if (e.code === 'KeyK' || e.code === 'ShiftLeft') st.bP = true;
   });
   addEventListener('keyup', e => {
     keys.delete(e.code);
@@ -47,8 +48,8 @@ export function createInput() {
       mx = (keys.has('KeyD') || keys.has('ArrowRight')) - (keys.has('KeyA') || keys.has('ArrowLeft')) || mx;
       my = (keys.has('KeyS') || keys.has('ArrowDown')) ? 1 : my;
     }
-    const out = { mx, my, jumpHeld: st.jumpHeld, jump: st.jumpPressed, dash: st.dashPressed, attack: st.attackPressed };
-    st.jumpPressed = st.dashPressed = st.attackPressed = false;
+    const out = { mx, my, jumpHeld: st.jumpHeld, jump: st.jumpPressed, b: st.bP, a: st.aP };
+    st.jumpPressed = st.bP = st.aP = false;
     return out;
   };
 }
