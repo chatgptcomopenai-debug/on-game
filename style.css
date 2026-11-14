@@ -5,21 +5,24 @@ html,body{margin:0;height:100%;background:var(--ink);overflow:hidden;touch-actio
 button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 
 /* управление */
-#joy-zone{position:fixed;left:0;top:0;width:50vw;height:100dvh}
+#joy-zone{position:fixed;left:0;top:0;width:46vw;height:100dvh}
 #joy-base{position:absolute;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06),rgba(255,255,255,.14));border:3px solid rgba(255,255,255,.35);display:none;box-shadow:0 0 18px rgba(0,0,0,.4)}
 #joy-knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 3px 0 rgba(0,0,0,.35)}
-#buttons{position:fixed;right:calc(14px + env(safe-area-inset-right));bottom:14px;display:grid;grid-template-columns:auto auto;gap:10px;align-items:end;justify-items:center}
-.btn{--p:1;position:relative;width:66px;height:66px;border-radius:50%;border:3px solid rgba(255,255,255,.55);background:rgba(11,7,18,.45);color:#fff;font:24px system-ui;touch-action:none;padding:0;box-shadow:0 4px 0 rgba(0,0,0,.4)}
-.btn::after{content:"";position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(var(--y) calc(var(--p)*360deg),transparent 0);-webkit-mask:radial-gradient(circle,transparent 58%,#000 60%);mask:radial-gradient(circle,transparent 58%,#000 60%);opacity:.9;pointer-events:none}
-.btn.big{width:84px;height:84px;grid-column:2;grid-row:3;font-size:30px}
-.btn.big::after{display:none}
-.btn.small{width:56px;height:56px;font-size:22px;grid-column:2;grid-row:2}
-#btn-a{grid-column:1;grid-row:3;width:72px;height:72px}
-.btn.ult{grid-column:1;grid-row:2;width:58px;height:58px;font-size:24px}
-.btn.ult.ready{border-color:var(--y);background:rgba(255,210,63,.3);animation:pulse .6s infinite alternate}
+#buttons{position:fixed;right:calc(12px + env(safe-area-inset-right));bottom:12px;width:230px;height:210px;pointer-events:none}
+.btn{--p:1;position:absolute;pointer-events:auto;border-radius:50%;border:3px solid rgba(255,255,255,.55);background:rgba(11,7,18,.45);color:#fff;font:24px system-ui;touch-action:none;padding:0;box-shadow:0 4px 0 rgba(0,0,0,.4)}
+.btn::after{content:"";position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(var(--y) calc(var(--p)*360deg),transparent 0);-webkit-mask:radial-gradient(circle,transparent 60%,#000 62%);mask:radial-gradient(circle,transparent 60%,#000 62%);opacity:.9;pointer-events:none}
+.btn .ico{position:relative;z-index:2;pointer-events:none}
+.btn .nub{position:absolute;left:50%;top:50%;width:38%;height:38%;margin:-19% 0 0 -19%;border-radius:50%;background:rgba(255,255,255,.22);pointer-events:none}
+.btn.attack{right:0;bottom:0;width:104px;height:104px;font-size:34px;background:rgba(255,77,94,.28);border-color:rgba(255,255,255,.75)}
+.btn.dodge{right:118px;bottom:4px;width:64px;height:64px;font-size:24px}
+.btn.skill{right:104px;bottom:84px;width:62px;height:62px;font-size:24px}
+.btn.ult{right:18px;bottom:122px;width:66px;height:66px;font-size:26px}
+.btn.ult.ready{border-color:var(--y);background:rgba(255,210,63,.35);animation:pulse .6s infinite alternate}
 @keyframes pulse{to{transform:scale(1.12);box-shadow:0 0 24px var(--y)}}
-.btn.on{background:rgba(255,255,255,.3);transform:scale(.94)}
+.btn.on{background:rgba(255,255,255,.3)}
 .btn.cd{opacity:.55}
+.btn .ammo{position:absolute;bottom:-2px;right:-2px;background:var(--ink);color:var(--y);font:9px "Press Start 2P",monospace;padding:3px 4px;border-radius:4px;border:2px solid var(--y);z-index:3}
+.btn .ammo:empty{display:none}
 .corner{position:fixed;top:8px;width:36px;height:36px;border-radius:8px;border:2px solid rgba(255,255,255,.4);background:rgba(11,7,18,.55);color:#fff;font:16px system-ui;z-index:5;padding:0}
 #btn-exit{right:calc(10px + env(safe-area-inset-right))}
 .mute{right:calc(52px + env(safe-area-inset-right))}
@@ -78,5 +81,24 @@ body.is-host .client-only{display:none}
 .hero .ds{color:var(--mute);min-height:3.2em}
 .hero .stt{color:#7dff8a}
 .hero.sel{border-color:var(--y);box-shadow:0 0 14px rgba(255,210,63,.55)}
-.btn .ammo{position:absolute;bottom:-4px;right:-4px;background:var(--ink);color:var(--y);font:9px "Press Start 2P",monospace;padding:3px 4px;border-radius:4px;border:2px solid var(--y)}
-#cam-mode{font-size:10px}
+.panel.menu{display:flex;gap:16px;align-items:flex-start;text-align:center;min-width:min(680px,94vw)}
+.mcol{flex:1;min-width:0}
+h3{margin:4px 0 8px;font-size:10px;color:var(--y)}
+#quests li{flex-direction:column;align-items:stretch;gap:5px;font-size:8px;line-height:1.5;text-align:left}
+#quests .qb{height:6px;background:#3d3160;border-radius:2px;overflow:hidden}
+#quests .qb i{display:block;height:100%;background:linear-gradient(90deg,#ffd23f,#ff8c3a)}
+#quests .qr{color:var(--y);float:right}
+.profile .lg{color:#fff}
+.hero.locked{opacity:.5}
+.hero .lock{color:#ff8c3a}
+#map-sel{max-width:170px}
+@media (max-width:640px){.panel.menu{flex-direction:column}}
+.panel.menu{padding:10px 14px}
+.menu .btn-y,.menu .btn-g{padding:9px 13px;margin:3px;font-size:10px}
+.menu select,.menu input{font-size:9px;padding:8px 8px;margin:3px}
+.menu .logo.small{font-size:15px;margin:0 0 4px}
+.menu .profile{padding:6px 8px;margin:2px 0 5px;font-size:8px;gap:7px}
+.menu .xp{width:60px}
+.menu #quests li{padding:5px 7px;margin:3px 0}
+.menu h3{margin:2px 0 5px}
+#in-code{width:100px}

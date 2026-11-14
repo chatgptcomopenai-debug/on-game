@@ -20,10 +20,10 @@
 <div id="controls" class="hidden">
   <div id="joy-zone"><div id="joy-base"><div id="joy-knob"></div></div></div>
   <div id="buttons">
-    <button id="btn-c" class="btn ult hidden" style="--p:0">💥</button>
-    <button id="btn-b" class="btn small" style="--p:1">⇢</button>
-    <button id="btn-a" class="btn" style="--p:1">✊</button>
-    <button id="btn-jump" class="btn big">⤒</button>
+    <button id="btn-c" class="btn ult hidden" style="--p:0"><span class="ico">💥</span></button>
+    <button id="btn-b" class="btn skill" style="--p:1"><span class="ico">★</span><span class="nub"></span></button>
+    <button id="btn-d" class="btn dodge" style="--p:1"><span class="ico">💨</span></button>
+    <button id="btn-a" class="btn attack" style="--p:1"><span class="ico">✊</span><span class="ammo"></span><span class="nub"></span></button>
   </div>
   <button id="btn-exit" class="corner">✕</button>
 </div>
@@ -32,7 +32,7 @@
 <div id="scr-login" class="screen">
   <div class="panel">
     <div class="logo"><span class="crown">👑</span><span>ИЗБРАННЫЙ</span></div>
-    <p class="tag">Один получает силу. Все против него.</p>
+    <p class="tag">Забери корону. Удержи её. Первым набери очки.</p>
     <input id="in-nick" maxlength="12" placeholder="Твой ник" autocomplete="off">
     <input id="in-pass" type="password" inputmode="numeric" placeholder="Пароль" autocomplete="off">
     <button id="go-login" class="btn-y">ВОЙТИ</button>
@@ -41,65 +41,73 @@
 </div>
 
 <div id="scr-menu" class="screen hidden">
+  <div class="panel wide menu">
+    <div class="mcol">
+      <div class="logo small"><span class="crown">👑</span><span>ИЗБРАННЫЙ</span></div>
+      <div class="profile">
+        <span id="pf-nick"></span>
+        <span class="lg"><span id="pf-league"></span> <b id="pf-tro">0</b>🏆</span>
+        <span class="lvl">УР.<b id="pf-lvl">1</b></span>
+        <span class="xp"><i id="pf-xp"></i></span>
+        <span class="coins">💰<b id="pf-coins">0</b></span>
+      </div>
+      <div class="row">
+        <button id="go-bots" class="btn-y">🤖 ИГРАТЬ С БОТАМИ</button>
+      </div>
+      <div class="row">
+        <select id="bots-n"><option value="2">2 бота</option><option value="3" selected>3 бота</option><option value="4">4 бота</option><option value="5">5 ботов</option></select>
+        <select id="bots-lvl"><option value="0">Лёгкие</option><option value="1" selected>Норм</option><option value="2">Жёсткие</option></select>
+        <select id="map-sel"><option value="-1">🗺 Случайная</option></select>
+      </div>
+      <div class="row">
+        <button id="go-host" class="btn-y">🌐 СОЗДАТЬ КОМНАТУ</button>
+      </div>
+      <div class="row">
+        <input id="in-code" maxlength="5" placeholder="КОД" autocomplete="off">
+        <button id="go-join" class="btn-y">ВОЙТИ</button>
+      </div>
+      <p id="menu-err" class="err"></p>
+    </div>
+    <div class="mcol">
+      <h3>ЗАДАНИЯ</h3>
+      <ul id="quests"></ul>
+      <div class="row">
+        <button id="go-heroes" class="btn-g">🦸 <b id="pf-hero">БОЕЦ</b></button>
+        <button id="go-wardrobe" class="btn-g">🎩 ШАПКИ</button>
+        <button id="go-help" class="btn-g">❓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="scr-heroes" class="screen hidden">
   <div class="panel wide">
-    <div class="logo small"><span class="crown">👑</span><span>ИЗБРАННЫЙ</span></div>
-    <div class="profile">
-      <span id="pf-nick"></span>
-      <span class="lvl">УР. <b id="pf-lvl">1</b></span>
-      <span class="xp"><i id="pf-xp"></i></span>
-      <span class="coins">💰 <b id="pf-coins">0</b></span>
-    </div>
-    <div class="row">
-      <button id="go-bots" class="btn-y">🤖 С БОТАМИ</button>
-      <select id="bots-n"><option value="2">2 бота</option><option value="3" selected>3 бота</option><option value="4">4 бота</option><option value="5">5 ботов</option></select>
-      <select id="bots-lvl"><option value="0">Лёгкие</option><option value="1" selected>Норм</option><option value="2">Жёсткие</option></select>
-    </div>
-    <div class="row">
-      <button id="go-host" class="btn-y">🌐 СОЗДАТЬ КОМНАТУ</button>
-    </div>
-    <div class="row">
-      <input id="in-code" maxlength="5" placeholder="КОД" autocomplete="off">
-      <button id="go-join" class="btn-y">ВОЙТИ</button>
-    </div>
-    <div class="row">
-      <button id="go-heroes" class="btn-g">🦸 ГЕРОЙ: <b id="pf-hero">БОЕЦ</b></button>
-      <button id="go-wardrobe" class="btn-g">🎩 ГАРДЕРОБ</button>
-    </div>
-    <div class="row">
-      <select id="cam-mode"><option value="auto">📷 Камера: следит</option><option value="full">📷 Камера: вся карта</option></select>
-      <button id="go-help" class="btn-g">❓ КАК ИГРАТЬ</button>
-    </div>
-    <p id="menu-err" class="err"></p>
+    <h2>🦸 ВЫБОР ГЕРОЯ <span class="coins"><b id="hr-tro">0</b>🏆</span></h2>
+    <div id="hero-grid"></div>
+    <button id="heroes-back" class="btn-y">ГОТОВО</button>
   </div>
 </div>
 
 <div id="scr-wardrobe" class="screen hidden">
   <div class="panel wide">
-    <h2>🎩 ГАРДЕРОБ <span class="coins">💰 <b id="wd-coins">0</b></span></h2>
+    <h2>🎩 ШАПКИ <span class="coins">💰 <b id="wd-coins">0</b></span></h2>
     <div id="wd-grid"></div>
     <p id="wd-msg" class="hint"></p>
     <button id="wd-back" class="btn-g">НАЗАД</button>
   </div>
 </div>
 
-<div id="scr-heroes" class="screen hidden">
-  <div class="panel wide">
-    <h2>🦸 ВЫБОР ГЕРОЯ</h2>
-    <div id="hero-grid"></div>
-    <button id="heroes-back" class="btn-y">ГОТОВО</button>
-  </div>
-</div>
-
 <div id="scr-help" class="screen hidden">
   <div class="panel wide help">
     <h2>❓ КАК ИГРАТЬ</h2>
-    <p>👑 <b>Избранный</b> получает случайную сверхсилу (8 видов: 🔥 Пламя, ⚡ Молния, ❄ Лёд, 🗿 Гигант, ☠ Яд, 🌑 Тень, 🌀 Гравитация, 🌪 Ветер). Остальные — <b>охотники</b>. Избранным становятся по очереди, а добивший Избранного забирает силу себе.</p>
-    <p>🔫 У охотников <b>нет суперсил</b>: ищи оружие на карте — пистолет, автомат, дробовик, снайперка, гранатомёт, базука, лазер. Без оружия можно только толкаться кулаком (почти без урона — зато можно спихнуть с острова).</p>
-    <p>🎯 <b>Прицел:</b> просто нажми ✊ — автонаводка. Зажми — автоогонь. <b>Потяни кнопку пальцем</b> — появится линия или кружок, куда полетит выстрел; отпусти — выстрел. Так же работает ★ у способностей с кружком.</p>
-    <p>🦸 У каждого героя свой навык на ★: рывок, щит, лечение, турель, невидимость, ракетный прыжок, ЭМИ.</p>
-    <p>🕹 Джойстик — бег (вниз в воздухе — быстрое падение). ⤒ прыжок, в воздухе ещё раз. Грибы на «Грибном лесу» — батуты.</p>
-    <p>⚠ 6 карт со своими событиями: ураган, гейзеры, сосульки, ядовитые споры, гроза, лазерная зачистка.</p>
-    <p class="hint">ПК: A/D бег, S вниз, Пробел прыжок, ЛКМ — стрелять в курсор, ПКМ — навык в курсор, J/K — авто, L ульта.</p>
+    <p>👑 <b>Цель:</b> первым набрать очки короны. Очки получает только <b>Избранный</b>: +1 за каждого выбитого охотника и +1 за каждые 15 секунд с короной.</p>
+    <p>⚔ <b>Добил Избранного — сам стал Избранным</b> (и +1 очко). Сила каждый раз случайная: 🔥 Пламя, ⚡ Молния, ❄ Лёд, 🗿 Гигант, ☠ Яд, 🌑 Тень, 🌀 Гравитация, 🌪 Ветер.</p>
+    <p>🔫 Охотники без суперсил: ищи оружие на острове (белая стрелка показывает ближайшее). Без оружия — только толчок кулаком.</p>
+    <p>🎯 <b>Большая кнопка атаки:</b> нажал — выстрел с автонаводкой, держишь — автоогонь, <b>тянешь пальцем</b> — целишься сам (линия или кружок) и стреляешь туда.</p>
+    <p>💨 <b>Перекат</b> — рывок с неуязвимостью: уходи из красных зон и от снарядов. ★ — навык героя, у Избранного ★ и 💥 — способность и ульта.</p>
+    <p>🌊 Не падай в воду, лаву и с крыш — это мгновенная гибель. Врагов можно туда сталкивать!</p>
+    <p>🏆 За матчи дают кубки (лиги), монеты и опыт. Кубки открывают новых героев.</p>
+    <p class="hint">ПК: WASD — бег, мышь — целиться и стрелять (ЛКМ), ПКМ или K — навык, Пробел — перекат, L — ульта, J — автоогонь.</p>
     <button id="help-back" class="btn-g">ПОНЯТНО</button>
   </div>
 </div>
@@ -117,12 +125,12 @@
 
 <div id="scr-results" class="screen hidden">
   <div class="panel">
-    <h2>🏆 ИТОГИ</h2>
+    <h2 id="res-title">🏆 ИТОГИ</h2>
     <ol id="res-list"></ol>
-    <p id="res-awards" class="hint"></p>
     <p id="res-reward" class="reward"></p>
-    <button id="go-rematch" class="btn-y host-only">🔁 РЕВАНШ</button>
-    <p class="hint client-only">Ждём, пока хост начнёт реванш…</p>
+    <p id="res-extra" class="hint"></p>
+    <button id="go-rematch" class="btn-y host-only">🔁 ЕЩЁ РАЗ</button>
+    <p class="hint client-only">Ждём, пока хост начнёт новый матч…</p>
     <button id="res-menu" class="btn-g">В МЕНЮ</button>
   </div>
 </div>
