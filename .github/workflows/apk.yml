@@ -1,0 +1,52 @@
+name: Сборка APK
+
+on:
+  push:
+    branches: [main, master, claude/awesome-rubin-jzgt3a]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Собрать игру в один HTML
+        run: |
+          python3 tools/build.py
+          mkdir -p android/app/src/main/assets
+          cp izbrannyi.html android/app/src/main/assets/index.html
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Собрать APK
+        working-directory: android
+        run: gradle assembleDebug --no-daemon
+
+      - name: Переименовать
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk izbrannyi.apk
+
+      - name: Опубликовать в релиз
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: Избранный — последняя сборка APK
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          body: |
+            Автоматическая сборка из коммита ${{ github.sha }}.
+            Скачай `izbrannyi.apk`, открой на Android-телефоне и разреши установку из этого источника.
+            Пароль для входа в игру: 12345687.
+          files: |
+            izbrannyi.apk
+            izbrannyi.html
