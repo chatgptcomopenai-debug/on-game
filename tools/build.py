@@ -11,6 +11,7 @@ def visit(mod):
     order.append(mod)
 visit('src/main.js')
 var = lambda m: '__m_' + re.sub(r'\W', '_', m)
+EXPORTS, IMPORTS = {}, []
 js = []
 for mod in order:
     src = open(os.path.join(ROOT, mod)).read()
@@ -18,11 +19,16 @@ for mod in order:
         names, dep = m.group(1), m.group(2)
         dep = posixpath.normpath(posixpath.join(posixpath.dirname(mod), dep))
         names = names.strip().strip('{}').replace(' as ', ': ')
+        IMPORTS.append((mod, dep, [n.split(':')[0].strip() for n in names.split(',') if n.strip()]))
         return f'const {{{names}}} = {var(dep)};'
     src = re.sub(r"^import (.+?) from '(.+?)';", imp, src, flags=re.M)
     exports = re.findall(r'^export (?:const|let|function|class) (\w+)', src, flags=re.M)
+    EXPORTS[mod] = set(exports)
     src = re.sub(r'^export ', '', src, flags=re.M)
     js.append(f'// ===== {mod} =====\nconst {var(mod)} = (() => {{\n{src}\nreturn {{ {", ".join(exports)} }};\n}})();')
+missing = [(m, d, n) for m, d, ns in IMPORTS for n in ns if n not in EXPORTS.get(d, set())]
+if missing:
+    raise SystemExit('Сборка остановлена, не найден экспорт: ' + '; '.join(f'{m} <- {d}: {n}' for m, d, n in missing))
 html = open(os.path.join(ROOT, 'index.html')).read()
 css = open(os.path.join(ROOT, 'style.css')).read()
 peer = open(os.path.join(ROOT, 'lib/peerjs.min.js')).read()

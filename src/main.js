@@ -315,6 +315,12 @@ function showResults(w) {
 let lastFrame = performance.now();
 const setP = (el, v) => el.style.setProperty('--p', v.toFixed(2));
 function frame(now) {
+  requestAnimationFrame(frame); // сначала планируем следующий кадр: ошибка в одном кадре не остановит игру
+  try { drawFrame(now); } catch (e) { if (!frame.err) { frame.err = true; console.error(e); } }
+}
+function drawFrame(now) {
+  if (canvas.width !== Math.round(innerWidth * view.dpr) || canvas.height !== Math.round(innerHeight * view.dpr)) resize();
+  if (view.cw < 8 || view.ch < 8) return;
   const fdt = Math.min(0.05, (now - lastFrame) / 1000); lastFrame = now;
   let w = null, alpha = 1, opts = { aim: sample.aim };
   if (mode === 'client') {
@@ -354,7 +360,6 @@ function frame(now) {
     }
     if (w.match.phase === 'end' && !resultsShown) showResults(w);
   }
-  requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 show('scr-login');

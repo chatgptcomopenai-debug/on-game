@@ -3,7 +3,8 @@ import { CFG } from '../config.js';
 
 export const T = { DEEP: 0, SHALLOW: 1, GROUND: 2, ALT: 3, BLOCK: 4 };
 const { MW, MH, TILE } = CFG;
-export const WORLD_W = MW * TILE, WORLD_H = MH * TILE;
+export const WORLD_W = MW * TILE;
+export const WORLD_H = MH * TILE;
 
 function rng(seed) { let s = seed; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 function noiseGrid(r, gw, gh) { const g = []; for (let i = 0; i < gw * gh; i++) g.push(r()); return (x, y) => {

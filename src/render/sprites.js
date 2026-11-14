@@ -105,7 +105,9 @@ export function silhouette(sprite, color) {
   g.drawImage(sprite, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = color; g.fillRect(0, 0, c.width, c.height);
   m.set(color, c); return c;
 }
-export const SPR_W = 16, SPR_H = 20 + PAD, SPR_PAD = PAD;
+export const SPR_W = 16;
+export const SPR_H = 20 + PAD;
+export const SPR_PAD = PAD;
 
 // ---------- рисование из прямоугольников с автоконтуром ----------
 function outline(c, col = OUT) {

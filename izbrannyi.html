@@ -365,7 +365,8 @@ const { CFG } = __m_src_config_js;
 
 const T = { DEEP: 0, SHALLOW: 1, GROUND: 2, ALT: 3, BLOCK: 4 };
 const { MW, MH, TILE } = CFG;
-const WORLD_W = MW * TILE, WORLD_H = MH * TILE;
+const WORLD_W = MW * TILE;
+const WORLD_H = MH * TILE;
 
 function rng(seed) { let s = seed; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
 function noiseGrid(r, gw, gh) { const g = []; for (let i = 0; i < gw * gh; i++) g.push(r()); return (x, y) => {
@@ -499,7 +500,7 @@ function flowTo(m, x, y, time) {
   flows.set(key, { d, t: time }); return d;
 }
 
-return { T, WORLD_W, getMap, tileAt, walkable, moveCircle, safePoint, flowTo };
+return { T, WORLD_W, WORLD_H, getMap, tileAt, walkable, moveCircle, safePoint, flowTo };
 })();
 // ===== src/sim/world.js =====
 const __m_src_sim_world_js = (() => {
@@ -1565,7 +1566,9 @@ function silhouette(sprite, color) {
   g.drawImage(sprite, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = color; g.fillRect(0, 0, c.width, c.height);
   m.set(color, c); return c;
 }
-const SPR_W = 16, SPR_H = 20 + PAD, SPR_PAD = PAD;
+const SPR_W = 16;
+const SPR_H = 20 + PAD;
+const SPR_PAD = PAD;
 
 // ---------- рисование из прямоугольников с автоконтуром ----------
 function outline(c, col = OUT) {
@@ -1633,7 +1636,7 @@ function crownSprite() {
   return (crown = c);
 }
 
-return { mk, shade, charSprite, silhouette, SPR_W, gunSprite, objSprite, crownSprite };
+return { mk, shade, charSprite, silhouette, SPR_W, SPR_H, SPR_PAD, gunSprite, objSprite, crownSprite };
 })();
 // ===== src/render/tiles.js =====
 const __m_src_render_tiles_js = (() => {
@@ -2421,7 +2424,8 @@ function drawHud(ctx, view, w, myId, now, art, P, W2S, cx, cy) {
   const offArrow = (e, color, icon) => {
     const [sx, sy] = W2S(e.x, e.y - 8); if (sx > 20 * u && sx < cw - 20 * u && sy > 20 * u && sy < ch - 20 * u) return;
     const a = Math.atan2(sy - ch / 2, sx - cw / 2), rx = cw / 2 - 30 * u, ry = ch / 2 - 62 * u, k = Math.min(rx / Math.abs(Math.cos(a) || 1e-6), ry / Math.abs(Math.sin(a) || 1e-6));
-    const ax = cw / 2 + Math.cos(a) * k, ay = ch / 2 + Math.sin(a) * k, pul = 1 + 0.12 * Math.sin(now / 150);
+    const ax = cw / 2 + Math.cos(a) * k; let ay = ch / 2 + Math.sin(a) * k; const pul = 1 + 0.12 * Math.sin(now / 150);
+    if (ax > mx - 16 * u && ay < my + mh + 18 * u) ay = my + mh + 18 * u; // не залезать на мини-карту
     ctx.save(); ctx.translate(ax, ay); ctx.rotate(a); ctx.scale(pul, pul);
     ctx.fillStyle = '#0b0712'; ctx.beginPath(); ctx.moveTo(13 * u, 0); ctx.lineTo(-7 * u, -10 * u); ctx.lineTo(-7 * u, 10 * u); ctx.closePath(); ctx.fill();
     ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(10 * u, 0); ctx.lineTo(-5 * u, -7 * u); ctx.lineTo(-5 * u, 7 * u); ctx.closePath(); ctx.fill(); ctx.restore();
@@ -3021,6 +3025,12 @@ function showResults(w) {
 let lastFrame = performance.now();
 const setP = (el, v) => el.style.setProperty('--p', v.toFixed(2));
 function frame(now) {
+  requestAnimationFrame(frame); // сначала планируем следующий кадр: ошибка в одном кадре не остановит игру
+  try { drawFrame(now); } catch (e) { if (!frame.err) { frame.err = true; console.error(e); } }
+}
+function drawFrame(now) {
+  if (canvas.width !== Math.round(innerWidth * view.dpr) || canvas.height !== Math.round(innerHeight * view.dpr)) resize();
+  if (view.cw < 8 || view.ch < 8) return;
   const fdt = Math.min(0.05, (now - lastFrame) / 1000); lastFrame = now;
   let w = null, alpha = 1, opts = { aim: sample.aim };
   if (mode === 'client') {
@@ -3060,7 +3070,6 @@ function frame(now) {
     }
     if (w.match.phase === 'end' && !resultsShown) showResults(w);
   }
-  requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 show('scr-login');

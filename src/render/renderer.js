@@ -494,7 +494,8 @@ function drawHud(ctx, view, w, myId, now, art, P, W2S, cx, cy) {
   const offArrow = (e, color, icon) => {
     const [sx, sy] = W2S(e.x, e.y - 8); if (sx > 20 * u && sx < cw - 20 * u && sy > 20 * u && sy < ch - 20 * u) return;
     const a = Math.atan2(sy - ch / 2, sx - cw / 2), rx = cw / 2 - 30 * u, ry = ch / 2 - 62 * u, k = Math.min(rx / Math.abs(Math.cos(a) || 1e-6), ry / Math.abs(Math.sin(a) || 1e-6));
-    const ax = cw / 2 + Math.cos(a) * k, ay = ch / 2 + Math.sin(a) * k, pul = 1 + 0.12 * Math.sin(now / 150);
+    const ax = cw / 2 + Math.cos(a) * k; let ay = ch / 2 + Math.sin(a) * k; const pul = 1 + 0.12 * Math.sin(now / 150);
+    if (ax > mx - 16 * u && ay < my + mh + 18 * u) ay = my + mh + 18 * u; // не залезать на мини-карту
     ctx.save(); ctx.translate(ax, ay); ctx.rotate(a); ctx.scale(pul, pul);
     ctx.fillStyle = '#0b0712'; ctx.beginPath(); ctx.moveTo(13 * u, 0); ctx.lineTo(-7 * u, -10 * u); ctx.lineTo(-7 * u, 10 * u); ctx.closePath(); ctx.fill();
     ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(10 * u, 0); ctx.lineTo(-5 * u, -7 * u); ctx.lineTo(-5 * u, 7 * u); ctx.closePath(); ctx.fill(); ctx.restore();
